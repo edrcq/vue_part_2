@@ -54,3 +54,22 @@ export interface NewMessageResSocket {
     name: string
     message: string
 }
+
+/**
+ * Le Chat
+ */
+export interface Message {
+    name: string
+    text: string
+    createdAt: Date
+}
+
+export interface Room {
+    name: string
+    messages: Message[]
+}
+
+// Objet supportant toute clé
+export interface IWritingUsers {
+    [key: string]: string
+}
