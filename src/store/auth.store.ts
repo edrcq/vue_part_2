@@ -1,6 +1,10 @@
 import { defineStore } from "pinia";
+import { inject } from "vue";
 import { getMe, login, register, setToken } from "../common/api";
 import { EmailPassword, UserApi } from "../models/interfaces";
+import { socket } from "../common/socket";
+
+const LS_TOKEN = 'token'
 
 interface AuthState {
     user: UserApi | false
@@ -12,12 +16,22 @@ const useAuthStore = defineStore('auth', {
         user: false,
         token: '',
     }),
+    getters: {
+        isLoggedIn: state => {
+            return state.token !== '' && state.user !== false;
+        },
+        userEmail: state => {
+            return state.user ? state.user.email : ''
+        }
+    },
     actions: {
         login(payload: EmailPassword) {
+            // return une promise
             return login(payload)
                 .then(res => {
                     this.token = res.data.token
-                    setToken(this.token)
+                    localStorage.setItem(LS_TOKEN, this.token)
+                    // return la promise de checkToken
                     return this.checkToken()
                 })
                 .catch(err => {
@@ -36,10 +50,26 @@ const useAuthStore = defineStore('auth', {
             }
         },
         checkToken() {
-            return getMe().then(r => true).catch(err => false)
+            setToken(this.token)
+            return getMe()
+                .then(r => {
+                    this.user = r.data.user
+                    socket.emit('auth-me', { token: this.token })
+                    return true
+                })
+                .catch(err => false)
         },
         logout() {
-
+            localStorage.removeItem(LS_TOKEN)
+            setToken('') // remove token from axios headers
+            this.token = ''
+            this.user = false
+        },
+        loadLocalStorage() {
+            const token = localStorage.getItem(LS_TOKEN)
+            if (!token) return ;
+            this.token = token;
+            this.checkToken();
         }
     }
 })

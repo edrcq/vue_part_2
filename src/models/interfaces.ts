@@ -43,7 +43,8 @@ export interface NewMessageSocket {
 
 // RECEPTION DES PACKETS SERVER -> CLIENT
 export interface AuthMeResSocket {
-    user: UserApi
+    user: UserApi,
+    users: string[]
 }
 
 export interface WritingSocket {
@@ -72,4 +73,9 @@ export interface Room {
 // Objet supportant toute clé
 export interface IWritingUsers {
     [key: string]: string
+}
+
+export interface RoomOption {
+    label: string,
+    name: string
 }
