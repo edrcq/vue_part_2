@@ -16,6 +16,9 @@ export default defineComponent({
             default: () => []
         },
         btnType: String as PropType<ButtonType>,
+    },
+    created() {
+        console.log('from component',this.btnType)
     }
 })
 </script>
